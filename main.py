@@ -1,14 +1,16 @@
 # Import the pygame module
+from re import L
 from time import sleep
 import pygame
 from cloud import Cloud
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
-from sound import collision_sound
+from sound import collision_sound, enemy_explode, laser_sound
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
-from pygame.locals import (
+from pygame import (
     K_ESCAPE,
+    K_SPACE,
     KEYDOWN,
     QUIT,
 )
@@ -43,6 +45,7 @@ player = Player()
 # enemies = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
+lasers = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -65,6 +68,12 @@ while running:
             if event.key == K_ESCAPE:
                 running = False
 
+            if event.key == K_SPACE:
+                laser = player.shoot()
+                lasers.add(laser)
+                all_sprites.add(laser)
+                laser_sound.play()
+
         # Check for QUIT event. If QUIT, then set running to false.
         elif event.type == QUIT:
             running = False
@@ -86,6 +95,7 @@ while running:
     # update the sprites
     clouds.update()
     enemies.update()
+    lasers.update()
 
     # Fill the screen with sky blue
     screen.fill((135, 206, 250))
@@ -103,6 +113,14 @@ while running:
         sleep(3)
         # Stop the loop
         running = False
+
+    # Check if any lasers have collided with an enemy
+    for laser in lasers:
+        collided = pygame.sprite.spritecollideany(laser, enemies)
+        if collided:
+            laser.kill()
+            collided.kill()
+            enemy_explode.play()
 
     # Draw the player on the screen
     screen.blit(player.surf, player.rect)
