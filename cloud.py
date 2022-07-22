@@ -1,6 +1,6 @@
 import pygame
 import random
-from pygame.locals import RLEACCEL
+from pygame import RLEACCEL
 
 from config import SCREEN_HEIGHT, SCREEN_WIDTH
 

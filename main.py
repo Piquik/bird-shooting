@@ -4,6 +4,8 @@ from time import sleep
 import pygame
 from cloud import Cloud
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
+from health import HealthBar, HealthContainer
+from package import Package
 from score import Score
 from sound import collision_sound, enemy_explode, laser_sound
 
@@ -16,9 +18,9 @@ from pygame import (
     QUIT,
 )
 from enemy import Enemy
-from events import ADD_CLOUD, ADD_ENEMY
+from events import ADD_CLOUD, ADD_ENEMY, ADD_PACKAGE
 from player import Player
-
+from package import Package
 
 # Initialize pygame
 pygame.init()
@@ -44,6 +46,7 @@ player = Player()
 clouds = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 lasers = pygame.sprite.Group()
+packages = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -51,11 +54,21 @@ all_sprites.add(player)
 score = Score()
 all_sprites.add(score)
 
+# Add a health bar
+health_container = HealthContainer()
+all_sprites.add(health_container)
+health_bar = HealthBar()
+all_sprites.add(health_bar)
+
 # Add a new enemy every 250ms
 pygame.time.set_timer(ADD_ENEMY, 250)
 
 # Add a new cloud every second (1000ms)
 pygame.time.set_timer(ADD_CLOUD, 1000)
+
+
+# Add a new gift every 10 seconds (10000ms)
+pygame.time.set_timer(ADD_PACKAGE, 10000)
 
 # Variable to keep the main loop running
 running = True
@@ -90,6 +103,11 @@ while running:
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
+        if event.type == ADD_PACKAGE:
+            new_package = Package()
+            packages.add(new_package)
+            all_sprites.add(new_package)
+
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
@@ -98,19 +116,25 @@ while running:
     clouds.update()
     enemies.update()
     lasers.update()
+    packages.update()
 
     # Fill the screen with sky blue
     screen.fill((135, 206, 250))
 
     # Check if any enemies have collided with the player
-    if pygame.sprite.spritecollideany(player, enemies):
+    enemy_colision = pygame.sprite.spritecollideany(player, enemies)
+    if enemy_colision:
         # If so, then remove the player and stop the loop
-        player.kill()
-
+        # player.kill()
+        player.hit(10)
+        health_bar.update(player.health / 100)
         collision_sound.play()
-        sleep(3)
-        # Stop the loop
-        running = False
+        enemy_colision.kill()
+
+        if not player.alive:
+            sleep(3)
+            # Stop the loop
+            running = False
 
     # Check if any lasers have collided with an enemy
     for laser in lasers:
@@ -121,6 +145,12 @@ while running:
             enemy_explode.play()
             player.score += 1
             score.update(player.score)
+
+    package_colision = pygame.sprite.spritecollideany(player, packages)
+    if package_colision:
+        package_colision.kill()
+        player.health_boost()
+        health_bar.update(player.health / 100)
 
     # Draw all sprites
     for entity in all_sprites:

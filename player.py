@@ -17,6 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         self.rect = self.surf.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.health = 100
 
     def update(self, key):
         if key[K_UP]:
@@ -33,3 +34,13 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         return Laser(self.rect.right, self.rect.centery)
+
+    def hit(self, health):
+        self.health -= health
+        if self.health <= 0:
+            self.kill()
+
+    def health_boost(self):
+        self.health += 10
+        if self.health > 100:
+            self.health = 100
