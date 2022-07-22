@@ -4,6 +4,7 @@ from time import sleep
 import pygame
 from cloud import Cloud
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
+from score import Score
 from sound import collision_sound, enemy_explode, laser_sound
 
 # Import pygame.locals for easier access to key coordinates
@@ -16,7 +17,6 @@ from pygame import (
 )
 from enemy import Enemy
 from events import ADD_CLOUD, ADD_ENEMY
-
 from player import Player
 
 
@@ -41,13 +41,15 @@ player = Player()
 # - enemies is used for collision detection and position updates
 # - clouds is used for position updates
 # - all_sprites is used for rendering
-
-# enemies = pygame.sprite.Group()
 clouds = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 lasers = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
+
+# Add a score text object to all_sprites
+score = Score()
+all_sprites.add(score)
 
 # Add a new enemy every 250ms
 pygame.time.set_timer(ADD_ENEMY, 250)
@@ -100,10 +102,6 @@ while running:
     # Fill the screen with sky blue
     screen.fill((135, 206, 250))
 
-    # Draw all sprites
-    for entity in all_sprites:
-        screen.blit(entity.surf, entity.rect)
-
     # Check if any enemies have collided with the player
     if pygame.sprite.spritecollideany(player, enemies):
         # If so, then remove the player and stop the loop
@@ -121,6 +119,12 @@ while running:
             laser.kill()
             collided.kill()
             enemy_explode.play()
+            player.score += 1
+            score.update(player.score)
+
+    # Draw all sprites
+    for entity in all_sprites:
+        screen.blit(entity.surf, entity.rect)
 
     # Draw the player on the screen
     screen.blit(player.surf, player.rect)
