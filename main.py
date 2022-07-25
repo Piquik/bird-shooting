@@ -113,7 +113,10 @@ while running:
             all_sprites.add(new_package)
 
         if event.type == SHOW_STATS:
+            # Clear the screen
             print("\033c", end="")
+
+            # Print counts of sprites in the console
             print(f"%s sprites" % len(all_sprites))
             print(f"%s enemies" % len(enemies))
             print(f"%s clouds" % len(clouds))
