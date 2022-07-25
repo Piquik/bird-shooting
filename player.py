@@ -33,7 +33,11 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.rect.clamp([0, 0, SCREEN_WIDTH, SCREEN_HEIGHT])
 
     def shoot(self):
-        return Laser(self.rect.right, self.rect.centery)
+        return [
+            Laser(self.rect.right, self.rect.top, 8, -1),
+            Laser(self.rect.right, self.rect.centery),
+            Laser(self.rect.right, self.rect.bottom, 8, 1),
+        ]
 
     def hit(self, health):
         self.health -= health

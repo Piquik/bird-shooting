@@ -4,3 +4,4 @@ import pygame
 ADD_ENEMY = pygame.USEREVENT + 1
 ADD_CLOUD = pygame.USEREVENT + 2
 ADD_PACKAGE = pygame.USEREVENT + 3
+SHOW_STATS = pygame.USEREVENT + 4

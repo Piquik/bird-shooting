@@ -18,7 +18,7 @@ from pygame import (
     QUIT,
 )
 from enemy import Enemy
-from events import ADD_CLOUD, ADD_ENEMY, ADD_PACKAGE
+from events import ADD_CLOUD, ADD_ENEMY, ADD_PACKAGE, SHOW_STATS
 from player import Player
 from package import Package
 
@@ -70,6 +70,10 @@ pygame.time.set_timer(ADD_CLOUD, 1000)
 # Add a new gift every 10 seconds (10000ms)
 pygame.time.set_timer(ADD_PACKAGE, 10000)
 
+
+# Show stats every 2 seconds
+pygame.time.set_timer(SHOW_STATS, 2000)
+
 # Variable to keep the main loop running
 running = True
 
@@ -108,6 +112,13 @@ while running:
             packages.add(new_package)
             all_sprites.add(new_package)
 
+        if event.type == SHOW_STATS:
+            print("\033c", end="")
+            print(f"%s sprites" % len(all_sprites))
+            print(f"%s enemies" % len(enemies))
+            print(f"%s clouds" % len(clouds))
+            print(f"%s lasers" % len(lasers))
+
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
@@ -131,7 +142,7 @@ while running:
         collision_sound.play()
         enemy_colision.kill()
 
-        if not player.alive:
+        if player.health <= 0:
             sleep(3)
             # Stop the loop
             running = False
